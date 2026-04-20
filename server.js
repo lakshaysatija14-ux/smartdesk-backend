@@ -38,6 +38,9 @@ app.get('/api/data', (req, res) => {
   res.json(data);
 });
 
+app.get("/",(req,res)=>{
+  res.json({ message: "Welcome to the Backend API" });
+})
 // POST /api/data
 // Used by the frontend to push updates
 // Expects an object representing the entire state or updates
