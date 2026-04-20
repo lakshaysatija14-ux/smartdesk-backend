@@ -1,0 +1,88 @@
+{
+  "weather": {
+    "temp": 36,
+    "condition": "Haze",
+    "humidity": 15,
+    "city": "Delhi"
+  },
+  "alarms": [
+    "11:45 PM"
+  ],
+  "quotes": "It always seems impossible until it's done. — Nelson Mandela",
+  "tasks": [
+    {
+      "title": "fefddgdvdv",
+      "done": false
+    },
+    {
+      "title": "Finish Website UI",
+      "done": true
+    },
+    {
+      "title": "Deploy Backend",
+      "done": false
+    },
+    {
+      "title": "College Assignment",
+      "done": false
+    },
+    {
+      "title": "Read 20 Pages",
+      "done": false
+    },
+    {
+      "title": "Gym / Workout",
+      "done": true
+    }
+  ],
+  "deskMessages": [
+    {
+      "sender": "You",
+      "time": "04:14 PM",
+      "text": "hii",
+      "isDesk": false
+    },
+    {
+      "sender": "Desk",
+      "time": "04:14 PM",
+      "text": "Message received ",
+      "isDesk": true
+    },
+    {
+      "sender": "You",
+      "time": "03:58 PM",
+      "text": "Back in 10 mins",
+      "isDesk": false
+    },
+    {
+      "sender": "Desk",
+      "time": "03:58 PM",
+      "text": "Message received ",
+      "isDesk": true
+    },
+    {
+      "sender": "You",
+      "time": "07:43 PM",
+      "text": "gff",
+      "isDesk": false
+    },
+    {
+      "sender": "Desk",
+      "time": "07:43 PM",
+      "text": "Message received ",
+      "isDesk": true
+    }
+  ],
+  "calendarEvents": [
+    {
+      "date": 8,
+      "events": []
+    },
+    {
+      "date": 29,
+      "events": [
+        "hfhgh"
+      ]
+    }
+  ]
+}
