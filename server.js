@@ -1,63 +1,72 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const connectDB = require('./db.js');
+const Data = require('./models/user.model.js');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const DATA_FILE = path.join(__dirname, 'data.json');
 
 // Middleware
 app.use(cors());
-app.use(express.json()); // Parses incoming JSON requests
+app.use(express.json());
 
-// Utility function to read data
-const readData = () => {
+connectDB();
+
+
+// ✅ GET DATA
+app.get('/api/data', async (req, res) => {
   try {
-    const data = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading data.json:', error);
-    return {};
-  }
-};
+    let data = await Data.findOne();
 
-// Utility function to write data
-const writeData = (data) => {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
-  } catch (error) {
-    console.error('Error writing to data.json:', error);
-  }
-};
+    // If no data exists → create default empty doc
+    if (!data) {
+      data = await Data.create({});
+    }
 
-// GET /api/data
-// Used by the hardware screen to fetch the latest data
-app.get('/api/data', (req, res) => {
-  const data = readData();
-  res.json(data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.get("/",(req,res)=>{
+
+// ✅ ROOT
+app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Backend API" });
-})
-// POST /api/data
-// Used by the frontend to push updates
-// Expects an object representing the entire state or updates
-app.post('/api/data', (req, res) => {
-  const currentData = readData();
-  const newData = req.body;
-
-  // Merge the new data with the current data
-  // Using spread operator for a shallow merge. You can modify this for deep merging if needed.
-  const updatedData = { ...currentData, ...newData };
-
-  writeData(updatedData);
-
-  res.json({ message: 'Data updated successfully', data: updatedData });
 });
 
-// Start the server
+
+// ✅ POST (UPDATE / MERGE DATA)
+app.post('/api/data', async (req, res) => {
+  try {
+    const newData = req.body;
+
+    let existingData = await Data.findOne();
+
+    if (!existingData) {
+      // First time → create
+      const created = await Data.create(newData);
+      return res.json({ message: 'Data created', data: created });
+    }
+
+    // Merge like your old logic
+    Object.assign(existingData, newData);
+
+    const updated = await existingData.save();
+
+    res.json({ message: 'Data updated successfully', data: updated });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// START SERVER
 app.listen(PORT, () => {
-  console.log(`Hardware Backend API running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
