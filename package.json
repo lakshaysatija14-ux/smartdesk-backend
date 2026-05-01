@@ -16,6 +16,5 @@
     "express": "^5.2.1",
     "mongoose": "^9.5.0",
     "nodemon": "^3.1.14"
-    "googleapis": "^133.0.0"
   }
 }
