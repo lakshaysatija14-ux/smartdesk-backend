@@ -1,7 +1,12 @@
 const { google } = require("googleapis");
 
+// ✅ ADD THIS
+const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+
+// ✅ AUTH
 const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
+  credentials: credentials,
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
 });
 
@@ -34,6 +39,9 @@ module.exports = async (req, res) => {
       events: events
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+  error: err.message,
+  full: err
+});
   }
 };
