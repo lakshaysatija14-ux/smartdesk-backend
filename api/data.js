@@ -1,12 +1,12 @@
 const { google } = require("googleapis");
 
-// ✅ ADD THIS
+// ENV parse + fix private key
 const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
 
-// ✅ AUTH
+// AUTH
 const auth = new google.auth.GoogleAuth({
-  credentials: credentials,
+  credentials,
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
 });
 
@@ -25,8 +25,8 @@ async function getEvents() {
   });
 
   return res.data.items.map(e => ({
-    title: e.summary,
-    time: new Date(e.start.dateTime || e.start.date)
+    title: e.summary || "No Title",
+    time: new Date(e.start?.dateTime || e.start?.date)
       .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }));
 }
@@ -35,13 +35,12 @@ module.exports = async (req, res) => {
   try {
     const events = await getEvents();
 
-    res.status(200).json({
-      events: events
-    });
+    res.status(200).json({ events });
   } catch (err) {
+    console.error("ERROR:", err); // 🔥 important for logs
+
     res.status(500).json({
-  error: err.message,
-  full: err
-});
+      error: err.message
+    });
   }
 };
