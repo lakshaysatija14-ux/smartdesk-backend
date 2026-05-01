@@ -12,7 +12,7 @@ async function getEvents() {
 
   const res = await calendar.events.list({
     auth: authClient,
-    calendarId: "primary",
+    calendarId: "lakshayengineering14@gmail.com",
     timeMin: new Date().toISOString(),
     maxResults: 5,
     singleEvents: true,
