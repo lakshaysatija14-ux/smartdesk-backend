@@ -56,7 +56,7 @@ app.post('/api/data', async (req, res) => {
     if (newData.deskMessages) {
       const messagesWithTime = newData.deskMessages.map(msg => ({
         text: msg.text,
-        time: msg.time || new Date()
+        time: msg.time || ''
       }));
 
       existingData.deskMessages = [
