@@ -7,7 +7,7 @@ dotenv.config();
 const connectDB = require('./db.js');
 const Data = require('./models/user.model.js');
 
-const app = express();
+const app = express();   // ✅ FIXED
 const PORT = process.env.PORT || 3001;
 
 // Middleware
@@ -22,7 +22,6 @@ app.get('/api/data', async (req, res) => {
   try {
     let data = await Data.findOne();
 
-    // If no data exists → create default empty doc
     if (!data) {
       data = await Data.create({});
     }
@@ -52,30 +51,27 @@ app.post('/api/data', async (req, res) => {
       const created = await Data.create(newData);
       return res.json({ message: 'Data created', data: created });
     }
-// ✅ ADD THIS BEFORE Object.assign
 
-// ✅ HANDLE MESSAGES PROPERLY
+    // ✅ HANDLE MESSAGES WITH TIME
+    if (newData.deskMessages) {
+      const messagesWithTime = newData.deskMessages.map(msg => ({
+        text: msg.text,
+        time: msg.time || new Date()
+      }));
 
-if (newData.deskMessages) {
-  const messagesWithTime = newData.deskMessages.map(msg => ({
-    text: msg.text,
-    time: msg.time || new Date()
-  }));
+      existingData.deskMessages = [
+        ...(existingData.deskMessages || []),
+        ...messagesWithTime
+      ];
+    }
 
-  // ✅ Append instead of replace
-  existingData.deskMessages = [
-    ...(existingData.deskMessages || []),
-    ...messagesWithTime
-  ];
-}
+    // ✅ Merge other fields safely
+    Object.assign(existingData, {
+      ...newData,
+      deskMessages: existingData.deskMessages
+    });
 
-// ✅ Merge remaining fields (but protect deskMessages)
-Object.assign(existingData, {
-  ...newData,
-  deskMessages: existingData.deskMessages
-});
-
-const updated = await existingData.save();
+    const updated = await existingData.save();
 
     res.json({ message: 'Data updated successfully', data: updated });
 
@@ -85,7 +81,7 @@ const updated = await existingData.save();
 });
 
 
-// START SERVER
+// ✅ START SERVER
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
