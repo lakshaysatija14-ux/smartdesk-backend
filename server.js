@@ -52,11 +52,30 @@ app.post('/api/data', async (req, res) => {
       const created = await Data.create(newData);
       return res.json({ message: 'Data created', data: created });
     }
+// ✅ ADD THIS BEFORE Object.assign
 
-    // Merge like your old logic
-    Object.assign(existingData, newData);
+// ✅ HANDLE MESSAGES PROPERLY
 
-    const updated = await existingData.save();
+if (newData.deskMessages) {
+  const messagesWithTime = newData.deskMessages.map(msg => ({
+    text: msg.text,
+    time: msg.time || new Date()
+  }));
+
+  // ✅ Append instead of replace
+  existingData.deskMessages = [
+    ...(existingData.deskMessages || []),
+    ...messagesWithTime
+  ];
+}
+
+// ✅ Merge remaining fields (but protect deskMessages)
+Object.assign(existingData, {
+  ...newData,
+  deskMessages: existingData.deskMessages
+});
+
+const updated = await existingData.save();
 
     res.json({ message: 'Data updated successfully', data: updated });
 
