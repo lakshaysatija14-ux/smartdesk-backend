@@ -64,12 +64,21 @@ app.post('/api/data', async (req, res) => {
         ...messagesWithTime
       ];
     }
+    // ✅ HANDLE CALENDAR EVENTS
+if (newData.calendarEvents) {
+
+  existingData.calendarEvents = [
+    ...(existingData.calendarEvents || []),
+    ...newData.calendarEvents
+  ];
+}
 
     // ✅ Merge other fields safely
-    Object.assign(existingData, {
-      ...newData,
-      deskMessages: existingData.deskMessages
-    });
+   Object.assign(existingData, {
+  ...newData,
+  deskMessages: existingData.deskMessages,
+  calendarEvents: existingData.calendarEvents
+});
 
     const updated = await existingData.save();
 
