@@ -7,7 +7,7 @@ dotenv.config();
 const connectDB = require('./db.js');
 const Data = require('./models/user.model.js');
 
-const app = express();   // ✅ FIXED
+const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
@@ -20,6 +20,7 @@ connectDB();
 // ✅ GET DATA
 app.get('/api/data', async (req, res) => {
   try {
+
     let data = await Data.findOne();
 
     if (!data) {
@@ -27,6 +28,7 @@ app.get('/api/data', async (req, res) => {
     }
 
     res.json(data);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -41,51 +43,124 @@ app.get("/", (req, res) => {
 
 // ✅ POST (UPDATE / MERGE DATA)
 app.post('/api/data', async (req, res) => {
+
   try {
+
     const newData = req.body;
 
     let existingData = await Data.findOne();
 
+    // ✅ CREATE FIRST DOCUMENT
     if (!existingData) {
-      // First time → create
+
+      // Clean initial messages
+      if (newData.deskMessages) {
+        newData.deskMessages = newData.deskMessages
+          .filter(msg => msg.text && msg.text.trim() !== "")
+          .map(msg => ({
+            text: msg.text.trim(),
+            time: msg.time || ''
+          }))
+          .slice(-20);
+      }
+
+      // Clean initial calendar events
+      if (newData.calendarEvents) {
+        newData.calendarEvents = newData.calendarEvents
+          .filter(e => e.date && e.events?.length)
+          .slice(-15);
+      }
+
       const created = await Data.create(newData);
-      return res.json({ message: 'Data created', data: created });
+
+      return res.json({
+        message: 'Data created',
+        data: created
+      });
     }
 
-    // ✅ HANDLE MESSAGES WITH TIME
+
+    // ✅ HANDLE DESK MESSAGES
     if (newData.deskMessages) {
-      const messagesWithTime = newData.deskMessages.map(msg => ({
-        text: msg.text,
-        time: msg.time || ''
-      }));
+
+      const validMessages = newData.deskMessages
+
+        // Remove empty messages
+        .filter(msg => msg.text && msg.text.trim() !== "")
+
+        // Format messages
+        .map(msg => ({
+          text: msg.text.trim(),
+          time: msg.time || ''
+        }));
+
 
       existingData.deskMessages = [
+
         ...(existingData.deskMessages || []),
-        ...messagesWithTime
-      ];
+        ...validMessages
+
+      ]
+
+      // Remove duplicates
+      .filter((msg, index, self) =>
+        index === self.findIndex(
+          m => m.text === msg.text && m.time === msg.time
+        )
+      )
+
+      // Keep latest 20 only
+      .slice(-20);
     }
+
+
+
     // ✅ HANDLE CALENDAR EVENTS
-if (newData.calendarEvents) {
+    if (newData.calendarEvents) {
 
-  existingData.calendarEvents = [
-    ...(existingData.calendarEvents || []),
-    ...newData.calendarEvents
-  ];
-}
+      const validEvents = newData.calendarEvents.filter(
+        e => e.date && e.events?.length
+      );
 
-    // ✅ Merge other fields safely
-   Object.assign(existingData, {
-  ...newData,
-  deskMessages: existingData.deskMessages,
-  calendarEvents: existingData.calendarEvents
-});
+      existingData.calendarEvents = [
 
+        ...(existingData.calendarEvents || []),
+        ...validEvents
+
+      ]
+
+      // Keep latest 15 events only
+      .slice(-15);
+    }
+
+
+
+    // ✅ MERGE OTHER FIELDS SAFELY
+    Object.assign(existingData, {
+
+      ...newData,
+
+      // Preserve cleaned arrays
+      deskMessages: existingData.deskMessages,
+      calendarEvents: existingData.calendarEvents
+
+    });
+
+
+    // ✅ SAVE UPDATED DATA
     const updated = await existingData.save();
 
-    res.json({ message: 'Data updated successfully', data: updated });
+    res.json({
+      message: 'Data updated successfully',
+      data: updated
+    });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+
+    res.status(500).json({
+      error: err.message
+    });
+
   }
 });
 
