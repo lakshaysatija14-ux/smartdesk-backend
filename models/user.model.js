@@ -22,7 +22,8 @@ const dataSchema = new mongoose.Schema({
     temp: Number,
     condition: String,
     humidity: Number,
-    city: String
+    city: String,
+    windSpeed: Number
   },
   alarms: [String],
   quotes: String,
