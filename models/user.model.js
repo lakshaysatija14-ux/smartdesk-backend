@@ -13,7 +13,7 @@ const messageSchema = new mongoose.Schema({
 }, { _id: false });
 
 const calendarEventSchema = new mongoose.Schema({
-  date: Number,
+  date: String,
   events: [String]
 }, { _id: false });
 
