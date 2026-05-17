@@ -180,6 +180,7 @@ app.post('/api/data', async (req, res) => {
 
         e =>
           e.date !== undefined &&
+          !isNaN(e.date) &&
           e.events?.length
       );
 
