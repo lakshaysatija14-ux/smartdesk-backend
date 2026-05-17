@@ -47,14 +47,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// ✅ CLEANUP ROUTE — ek baar use karke hata dena
-app.get('/api/cleanup', async (req, res) => {
-    await Data.updateOne({}, {
-        $pull: { calendarEvents: { date: { $exists: false } } }
-    });
-    res.json({ message: 'Cleaned up events without date' });
-});
-
 // ✅ POST / UPDATE DATA
 app.post('/api/data', async (req, res) => {
 
@@ -93,7 +85,6 @@ app.post('/api/data', async (req, res) => {
 
           .filter(e =>
             e.date !== undefined &&
-            !isNaN(e.date) &&
             e.events?.length
           )
 
@@ -187,7 +178,6 @@ app.post('/api/data', async (req, res) => {
 
         e =>
           e.date !== undefined &&
-          !isNaN(e.date) &&
           e.events?.length
       );
 
