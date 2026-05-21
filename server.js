@@ -201,7 +201,7 @@ app.post('/api/data', async (req, res) => {
       )
 
       // Keep latest 15
-      .slice(-15);
+      .slice(-4);
     }
 
 
